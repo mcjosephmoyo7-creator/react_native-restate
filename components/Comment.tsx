@@ -1,6 +1,7 @@
-import { View, Text, Image } from "react-native";
+import { useState } from "react";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-import icons from "@/constants/icons";
 import type { Review } from "@/lib/data";
 
 interface Props {
@@ -8,6 +9,16 @@ interface Props {
 }
 
 const Comment = ({ item }: Props) => {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(120);
+
+  const toggleLike = () => {
+    setLiked((prev) => {
+      setLikes((current) => (prev ? current - 1 : current + 1));
+      return !prev;
+    });
+  };
+
   return (
     <View className="flex flex-col items-start">
       <View className="flex flex-row items-center">
@@ -22,16 +33,20 @@ const Comment = ({ item }: Props) => {
       </Text>
 
       <View className="flex flex-row items-center w-full justify-between mt-4">
-        <View className="flex flex-row items-center">
-          <Image
-            source={icons.heart}
-            className="size-5"
-            tintColor={"#0061FF"}
+        <TouchableOpacity
+          onPress={toggleLike}
+          className="flex flex-row items-center"
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons
+            name={liked ? "heart" : "heart-outline"}
+            size={20}
+            color={liked ? "#F75555" : "#0061FF"}
           />
           <Text className="text-black-300 text-sm font-rubik-medium ml-2">
-            120
+            {likes}
           </Text>
-        </View>
+        </TouchableOpacity>
         <Text className="text-black-100 text-sm font-rubik">
           {new Date(item.$createdAt).toDateString()}
         </Text>

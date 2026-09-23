@@ -13,6 +13,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import icons from "@/constants/icons";
 import images from "@/constants/images";
 import Comment from "@/components/Comment";
+import FavoriteButton from "@/components/FavoriteButton";
 import { facilities } from "@/constants/data";
 
 import { useAppwrite } from "@/lib/useAppwrite";
@@ -62,11 +63,7 @@ const Property = () => {
               </TouchableOpacity>
 
               <View className="flex flex-row items-center gap-3">
-                <Image
-                  source={icons.heart}
-                  className="size-7"
-                  tintColor={"#191D31"}
-                />
+                <FavoriteButton id={id!} color="#191D31" size={26} />
                 <Image source={icons.send} className="size-7" />
               </View>
             </View>

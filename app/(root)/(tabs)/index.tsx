@@ -19,10 +19,12 @@ import { Card, FeaturedCard } from "@/components/Cards";
 
 import { useAppwrite } from "@/lib/useAppwrite";
 import { useGlobalContext } from "@/lib/global-provider";
+import { useI18n } from "@/lib/i18n";
 import { getLatestProperties, getProperties } from "@/lib/appwrite";
 
 const Home = () => {
   const { user } = useGlobalContext();
+  const { t } = useI18n();
 
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
@@ -85,14 +87,19 @@ const Home = () => {
 
                 <View className="flex flex-col items-start ml-2 justify-center">
                   <Text className="text-xs font-rubik text-black-100">
-                    Good Morning
+                    {t("home_greeting")}
                   </Text>
                   <Text className="text-base font-rubik-medium text-black-300">
                     {user?.name}
                   </Text>
                 </View>
               </View>
-              <Image source={icons.bell} className="size-6" />
+              <TouchableOpacity
+                onPress={() => router.push("/notifications")}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Image source={icons.bell} className="size-6" />
+              </TouchableOpacity>
             </View>
 
             <Search />
@@ -100,11 +107,11 @@ const Home = () => {
             <View className="my-5">
               <View className="flex flex-row items-center justify-between">
                 <Text className="text-xl font-rubik-bold text-black-300">
-                  Featured
+                  {t("home_featured")}
                 </Text>
                 <TouchableOpacity>
                   <Text className="text-base font-rubik-bold text-primary-300">
-                    See all
+                    {t("home_seeAll")}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -135,11 +142,11 @@ const Home = () => {
             <View className="mt-5">
               <View className="flex flex-row items-center justify-between">
                 <Text className="text-xl font-rubik-bold text-black-300">
-                  Our Recommendation
+                  {t("home_recommendation")}
                 </Text>
                 <TouchableOpacity>
                   <Text className="text-base font-rubik-bold text-primary-300">
-                    See all
+                    {t("home_seeAll")}
                   </Text>
                 </TouchableOpacity>
               </View>

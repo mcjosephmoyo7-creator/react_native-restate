@@ -4,8 +4,10 @@ import { useDebouncedCallback } from "use-debounce";
 
 import icons from "@/constants/icons";
 import { useLocalSearchParams, router, usePathname } from "expo-router";
+import { useI18n } from "@/lib/i18n";
 
 const Search = () => {
+  const { t } = useI18n();
   const path = usePathname();
   const params = useLocalSearchParams<{ query?: string }>();
   const [search, setSearch] = useState(params.query);
@@ -26,7 +28,7 @@ const Search = () => {
         <TextInput
           value={search}
           onChangeText={handleSearch}
-          placeholder="Search for anything"
+          placeholder={t("search_placeholder")}
           className="text-sm font-rubik text-black-300 ml-2 flex-1"
         />
       </View>

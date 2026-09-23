@@ -18,8 +18,10 @@ import NoResults from "@/components/NoResults";
 
 import { getProperties } from "@/lib/appwrite";
 import { useAppwrite } from "@/lib/useAppwrite";
+import { useI18n } from "@/lib/i18n";
 
 const Explore = () => {
+  const { t } = useI18n();
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
   const {
@@ -74,9 +76,14 @@ const Explore = () => {
               </TouchableOpacity>
 
               <Text className="text-base mr-2 text-center font-rubik-medium text-black-300">
-                Search for Your Ideal Home
+                {t("explore_title")}
               </Text>
-              <Image source={icons.bell} className="w-6 h-6" />
+              <TouchableOpacity
+                onPress={() => router.push("/notifications")}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Image source={icons.bell} className="w-6 h-6" />
+              </TouchableOpacity>
             </View>
 
             <Search />
@@ -85,7 +92,7 @@ const Explore = () => {
               <Filters />
 
               <Text className="text-xl font-rubik-bold text-black-300 mt-5">
-                Found {properties?.length} Properties
+                {t("explore_found", { count: properties?.length ?? 0 })}
               </Text>
             </View>
           </View>
