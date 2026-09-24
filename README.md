@@ -1,23 +1,3 @@
-<div align="center">
-  <br />
-    <a href="https://youtu.be/CzJQEstIiEI" target="_blank">
-      <img src="assets/readme/hero.webp" alt="Project Banner">
-    </a>
-  <br />
-  <div>
-    <img src="https://img.shields.io/badge/-Expo-black?style=for-the-badge&logoColor=white&logo=expo&color=000020" alt="expo" />
-    <img src="https://img.shields.io/badge/-TypeScript-black?style=for-the-badge&logoColor=white&logo=typescript&color=3178C6" alt="typescript" />
-    <img src="https://img.shields.io/badge/-Appwrite-black?style=for-the-badge&logoColor=white&logo=appwrite&color=FD366E" alt="appwrite" />
-    <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-  </div>
-
-  <h3 align="center">A Real Estate App</h3>
-
-   <div align="center">
-     Build this project step by step with our detailed tutorial on <a href="https://www.youtube.com/@javascriptmastery/videos" target="_blank"><b>JavaScript Mastery</b></a> YouTube. Join the JSM family!
-    </div>
-</div>
-
 ## 📋 <a name="table">Table of Contents</a>
 
 1. ⚙️ [Tech Stack](#tech-stack)
@@ -82,19 +62,29 @@ npm install
 
 **Set Up Environment Variables**
 
-Create a new file named `.env.local` in the root of your project and add the following content:
+Copy `.env.example` to `.env.local` in the root of your project and fill in the values from your Appwrite project:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+(Use `cp .env.example .env.local` on macOS/Linux.)
+
+The file should contain the following variables (all values after `EXPO_PUBLIC_` are read by Expo):
 
 ```env
-EXPO_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+EXPO_PUBLIC_APPWRITE_ENDPOINT=https://nyc.cloud.appwrite.io/v1
 EXPO_PUBLIC_APPWRITE_PROJECT_ID=
 EXPO_PUBLIC_APPWRITE_DATABASE_ID=
 EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID=
 EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID=
 EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID=
 EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID=
+EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID=
+EXPO_PUBLIC_APPWRITE_BUCKET_ID=
 ```
 
-Replace the values with your actual Appwrite credentials. You can obtain these credentials by signing up & creating a new project on the [**Appwrite Dashboard**](https://jsm.dev/rn25-appwrite).
+Replace the empty values with your actual Appwrite credentials. You can obtain these credentials by signing up & creating a new project on the [**Appwrite Dashboard**](https://jsm.dev/rn25-appwrite). Restart Expo after changing an environment variable (`npx expo start -c` clears the bundler cache).
 
 **Start the app**
    

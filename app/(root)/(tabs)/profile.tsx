@@ -20,6 +20,7 @@ import { settings } from "@/constants/data";
 const settingsRoutes: Record<string, string> = {
   "My Bookings": "/bookings",
   Payments: "/payments",
+  Profile: "/edit-profile",
   Notifications: "/notifications",
   Security: "/security",
   Language: "/language",
@@ -30,6 +31,7 @@ const settingsRoutes: Record<string, string> = {
 const settingsTitleKeys: Record<string, TranslationKey> = {
   "My Bookings": "settings_bookings",
   Payments: "settings_payments",
+  Profile: "settings_profile",
   Notifications: "settings_notifications",
   Security: "settings_security",
   Language: "settings_language",
@@ -110,7 +112,11 @@ const Profile = () => {
               source={{ uri: user?.avatar }}
               className="size-44 relative rounded-full"
             />
-            <TouchableOpacity className="absolute bottom-11 right-2">
+            <TouchableOpacity
+              onPress={() => router.push("/edit-profile")}
+              className="absolute bottom-11 right-2"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <Image source={icons.edit} className="size-9" />
             </TouchableOpacity>
 

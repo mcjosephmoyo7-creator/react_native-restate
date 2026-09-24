@@ -8,7 +8,10 @@ import {
   Databases,
   ID,
   OAuthProvider,
+  Permission,
   Query,
+  Role,
+  Storage,
 } from "react-native-appwrite";
 
 import { getPropertyById as findPropertyById, properties } from "./data";
@@ -28,14 +31,30 @@ export const config = {
   bucketId: process.env.EXPO_PUBLIC_APPWRITE_BUCKET_ID,
 };
 
+/**
+ * The Appwrite client is created at module scope, so it must be safe to import
+ * before the environment has been configured (for example, while Expo Router
+ * is discovering routes).
+ */
+export const isAppwriteConfigured = Boolean(
+  config.endpoint && config.projectId
+);
+
 export const client = new Client();
-client
-  .setEndpoint(config.endpoint!)
-  .setProject(config.projectId!)
-  .setPlatform(config.platform!);
+
+if (config.endpoint) {
+  client.setEndpoint(config.endpoint);
+}
+
+if (config.projectId) {
+  client.setProject(config.projectId);
+}
+
+client.setPlatform(config.platform);
 
 export const account = new Account(client);
 export const databases = new Databases(client);
+export const storage = new Storage(client);
 export const avatars = new Avatars(client);
 
 interface CurrentUser {
@@ -46,6 +65,13 @@ interface CurrentUser {
 }
 
 export async function login() {
+  if (!isAppwriteConfigured) {
+    console.error(
+      "Appwrite is not configured. Add EXPO_PUBLIC_APPWRITE_ENDPOINT and EXPO_PUBLIC_APPWRITE_PROJECT_ID to .env.local, then restart Expo."
+    );
+    return false;
+  }
+
   try {
     const redirectUri = Linking.createURL("auth");
 
@@ -125,7 +151,7 @@ async function persistProfile(
   email: string,
   avatar: string
 ) {
-  if (!config.usersCollectionId) return;
+  if (!config.databaseId || !config.usersCollectionId) return;
 
   try {
     const existing = await databases.listDocuments(
@@ -134,27 +160,124 @@ async function persistProfile(
       [Query.equal("appwriteUserId", userId)]
     );
 
-    if (existing.documents.length > 0) {
-      await databases.updateDocument(
-        config.databaseId!,
-        config.usersCollectionId,
-        existing.documents[0].$id,
-        { name, email, avatar }
-      );
-    } else {
-      await databases.createDocument(
-        config.databaseId!,
-        config.usersCollectionId,
-        ID.unique(),
-        { appwriteUserId: userId, name, email, avatar }
-      );
-    }
+    if (existing.documents.length > 0) return;
+
+    await databases.createDocument(
+      config.databaseId!,
+      config.usersCollectionId,
+      ID.unique(),
+      { appwriteUserId: userId, name, email, avatar }
+    );
   } catch (error) {
     console.warn("Failed to persist profile:", error);
   }
 }
 
+export interface ProfileImageUpload {
+  uri: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+}
+
+export async function updateUserProfile({
+  name,
+  image,
+}: {
+  name?: string;
+  image?: ProfileImageUpload;
+}) {
+  if (!isAppwriteConfigured) {
+    throw new Error("Appwrite is not configured.");
+  }
+
+  if (!config.databaseId || !config.usersCollectionId) {
+    throw new Error("The users collection is not configured.");
+  }
+
+  const normalizedName = name?.trim();
+  if (name !== undefined && !normalizedName) {
+    throw new Error("Name is required.");
+  }
+
+  if (image && !config.bucketId) {
+    throw new Error("The profile image bucket is not configured.");
+  }
+
+  const currentAccount = await account.get();
+  const existing = await databases.listDocuments(
+    config.databaseId,
+    config.usersCollectionId,
+    [Query.equal("appwriteUserId", currentAccount.$id)]
+  );
+  const currentProfile = existing.documents[0];
+  let uploadedFileId: string | null = null;
+  let avatar = currentProfile?.avatar || "";
+
+  try {
+    if (normalizedName && normalizedName !== currentAccount.name) {
+      await account.updateName(normalizedName);
+    }
+
+    if (image) {
+      const file = await storage.createFile(
+        config.bucketId!,
+        ID.unique(),
+        {
+          name: image.fileName,
+          type: image.mimeType,
+          size: image.size,
+          uri: image.uri,
+        },
+        [Permission.read(Role.any())]
+      );
+      uploadedFileId = file.$id;
+      avatar = storage.getFileView(config.bucketId!, file.$id).toString();
+    }
+
+    const profileData = {
+      name: normalizedName || currentAccount.name,
+      email: currentProfile?.email || currentAccount.email,
+      avatar,
+    };
+
+    if (currentProfile) {
+      await databases.updateDocument(
+        config.databaseId,
+        config.usersCollectionId,
+        currentProfile.$id,
+        profileData
+      );
+    } else {
+      await databases.createDocument(
+        config.databaseId,
+        config.usersCollectionId,
+        ID.unique(),
+        { appwriteUserId: currentAccount.$id, ...profileData }
+      );
+    }
+  } catch (error) {
+    if (uploadedFileId) {
+      try {
+        await storage.deleteFile(config.bucketId!, uploadedFileId);
+      } catch {
+        // The profile update error is more useful to show than cleanup failure.
+      }
+    }
+    throw error;
+  }
+
+  const updatedUser = await getCurrentUser();
+  if (!updatedUser) {
+    throw new Error("Could not reload the updated profile.");
+  }
+
+  return updatedUser;
+}
+
 export async function logout() {
+  if (!isAppwriteConfigured) return false;
+
   try {
     await account.deleteSession("current");
     return true;
@@ -165,6 +288,8 @@ export async function logout() {
 }
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
+  if (!isAppwriteConfigured) return null;
+
   let acc;
 
   try {
@@ -180,7 +305,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     avatar: avatars.getInitials(acc.name).toString(),
   };
 
-  if (!config.usersCollectionId) return user;
+  if (!config.databaseId || !config.usersCollectionId) return user;
 
   try {
     const list = await databases.listDocuments(

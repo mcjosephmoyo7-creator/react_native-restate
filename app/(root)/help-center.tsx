@@ -3,27 +3,18 @@ import {
   Alert,
   LayoutAnimation,
   Linking,
-  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  UIManager,
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import ScreenHeader from "@/components/ScreenHeader";
 import { useI18n, TranslationKey } from "@/lib/i18n";
-
-if (
-  Platform.OS === "android" &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 interface FaqItem {
   question: string;

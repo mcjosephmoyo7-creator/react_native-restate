@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Alert,
   Image,
@@ -15,9 +16,23 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 
 import ScreenHeader from "@/components/ScreenHeader";
 import images from "@/constants/images";
+import { useGlobalContext } from "@/lib/global-provider";
 import { useI18n } from "@/lib/i18n";
 
-type BookingStatus = "upcoming" | "completed" | "cancelled";
+const REMOVED_BOOKINGS_KEY = "restate.removedBookings";
+
+const parseRemovedBookingIds = (value: string | null) => {
+  try {
+    const parsed: unknown = JSON.parse(value ?? "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === "string")
+      : [];
+  } catch {
+    return [];
+  }
+};
+
+type BookingStatus = "upcoming" | "completed";
 
 interface Booking {
   id: string;
@@ -86,38 +101,11 @@ const mockBookings: Booking[] = [
     currency: "USD",
     coordinates: [-17.833, 31.105],
   },
-  {
-    id: "b5",
-    property: "Borrowdale Cottage",
-    location: "Borrowdale, Harare",
-    image: images.newYork,
-    date: "Wed, 02 Sep 2026",
-    time: "9:30 AM",
-    type: "viewing",
-    status: "cancelled",
-    fee: 25,
-    currency: "USD",
-    coordinates: [-17.793, 31.09],
-  },
-  {
-    id: "b6",
-    property: "CBD Executive Suite",
-    location: "Harare CBD",
-    image: images.japan,
-    date: "Thu, 27 Aug 2026",
-    time: "4:00 PM",
-    type: "booking",
-    status: "cancelled",
-    fee: 350,
-    currency: "USD",
-    coordinates: [-17.829, 31.052],
-  },
 ];
 
 const statusStyle: Record<BookingStatus, { className: string }> = {
   upcoming: { className: "bg-primary-300" },
   completed: { className: "bg-emerald-500" },
-  cancelled: { className: "bg-black-100" },
 };
 
 const BookingCard = ({
@@ -132,9 +120,7 @@ const BookingCard = ({
   const statusLabel =
     booking.status === "upcoming"
       ? t("bookings_upcoming")
-      : booking.status === "completed"
-      ? t("bookings_completed")
-      : t("bookings_cancelled");
+      : t("bookings_completed");
 
   const openDirections = () => {
     const [lat, lng] = booking.coordinates;
@@ -216,29 +202,55 @@ const BookingCard = ({
 };
 
 const Bookings = () => {
+  const { user } = useGlobalContext();
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<BookingStatus>("upcoming");
   const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
   const [bookings, setBookings] = useState<Booking[]>(mockBookings);
+  const removedBookingIdsRef = useRef<Set<string>>(new Set());
+  const storageKey = `${REMOVED_BOOKINGS_KEY}:${user?.$id ?? "guest"}`;
+
+  useEffect(() => {
+    let isCurrent = true;
+    removedBookingIdsRef.current = new Set();
+
+    void AsyncStorage.getItem(storageKey)
+      .then((storedValue) => {
+        if (!isCurrent) return;
+
+        const removedIds = new Set(parseRemovedBookingIds(storedValue));
+        removedIds.forEach((id) => removedBookingIdsRef.current.add(id));
+        setBookings((currentBookings) =>
+          currentBookings.filter((booking) => !removedIds.has(booking.id))
+        );
+      })
+      .catch(() => {});
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [storageKey]);
 
   const tabs: { key: BookingStatus; label: string }[] = [
     { key: "upcoming", label: t("bookings_upcoming") },
     { key: "completed", label: t("bookings_completed") },
-    { key: "cancelled", label: t("bookings_cancelled") },
   ];
 
   const confirmCancellation = () => {
     if (!cancelTarget) return;
 
+    const removedIds = new Set(removedBookingIdsRef.current);
+    removedIds.add(cancelTarget.id);
+    removedBookingIdsRef.current = removedIds;
+
     setBookings((prev) =>
-      prev.map((booking) =>
-        booking.id === cancelTarget.id
-          ? { ...booking, status: "cancelled" }
-          : booking
-      )
+      prev.filter((booking) => booking.id !== cancelTarget.id)
+    );
+    void AsyncStorage.setItem(storageKey, JSON.stringify([...removedIds])).catch(
+      () => {}
     );
     setCancelTarget(null);
-    setActiveTab("cancelled");
+    setActiveTab("upcoming");
     Alert.alert(
       t("bookings_cancelledAlert"),
       t("bookings_cancelledBody", { property: cancelTarget.property })
@@ -250,9 +262,7 @@ const Bookings = () => {
   const emptyLabel =
     activeTab === "upcoming"
       ? t("bookings_noUpcoming")
-      : activeTab === "completed"
-      ? t("bookings_noCompleted")
-      : t("bookings_noCancelled");
+      : t("bookings_noCompleted");
 
   return (
     <SafeAreaView className="h-full bg-white">

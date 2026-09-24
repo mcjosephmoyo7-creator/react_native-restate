@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 
-import { login } from "@/lib/appwrite";
+import { isAppwriteConfigured, login } from "@/lib/appwrite";
 import { Redirect } from "expo-router";
 import { useGlobalContext } from "@/lib/global-provider";
 import icons from "@/constants/icons";
@@ -23,6 +23,14 @@ const Auth = () => {
   if (!loading && isLogged) return <Redirect href="/" />;
 
   const handleLogin = async () => {
+    if (!isAppwriteConfigured) {
+      Alert.alert(
+        "Configuration required",
+        "Add EXPO_PUBLIC_APPWRITE_ENDPOINT and EXPO_PUBLIC_APPWRITE_PROJECT_ID to .env.local, then restart Expo."
+      );
+      return;
+    }
+
     setSigningIn(true);
     try {
       const result = await login();
@@ -45,18 +53,19 @@ const Auth = () => {
     <SafeAreaView className="bg-white h-full">
       <ScrollView
         contentContainerStyle={{
-          height: "100%",
+          minHeight: "100%",
+          paddingBottom: 24,
         }}
       >
         <Image
           source={images.onboarding}
-          className="w-full h-4/6"
+          className="w-full h-2/5"
           resizeMode="contain"
         />
 
-        <View className="px-10">
+        <View className="px-8 mt-12">
           <Text className="text-base text-center uppercase font-rubik text-black-200">
-            Welcome To Real Scout
+            Welcome to Restate
           </Text>
 
           <Text className="text-3xl font-rubik-bold text-black-300 text-center mt-2">
@@ -65,7 +74,7 @@ const Auth = () => {
           </Text>
 
           <Text className="text-lg font-rubik text-black-200 text-center mt-12">
-            Login to Real Scout with Google
+            Login to ReState with Google
           </Text>
 
           <TouchableOpacity

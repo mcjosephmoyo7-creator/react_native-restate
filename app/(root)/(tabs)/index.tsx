@@ -79,7 +79,11 @@ const Home = () => {
         ListHeaderComponent={() => (
           <View className="px-5">
             <View className="flex flex-row items-center justify-between mt-5">
-              <View className="flex flex-row">
+              <TouchableOpacity
+                onPress={() => router.push("/profile")}
+                activeOpacity={0.8}
+                className="flex flex-row"
+              >
                 <Image
                   source={{ uri: user?.avatar }}
                   className="size-12 rounded-full"
@@ -93,7 +97,7 @@ const Home = () => {
                     {user?.name}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push("/notifications")}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}

@@ -175,7 +175,7 @@ const LanguageScreen = () => {
               {t("language_confirmTitle")}
             </Text>
             <Text className="text-sm font-rubik text-black-100 text-center mt-2 leading-5">
-              {t("language_confirmBody", { name: pendingLanguage?.name })}
+              {t("language_confirmBody", { name: pendingLanguage?.name ?? "" })}
             </Text>
 
             <View className="flex flex-row gap-3 mt-6">
