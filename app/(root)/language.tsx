@@ -12,6 +12,7 @@ import { Feather } from "@expo/vector-icons";
 
 import ScreenHeader from "@/components/ScreenHeader";
 import { useI18n, supportedLanguages } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 interface Language {
   code: string;
@@ -53,6 +54,7 @@ const resolveCode = (code: string) => {
 
 const LanguageScreen = () => {
   const { language, setLanguage, t } = useI18n();
+  const { isCompact } = useResponsiveLayout();
   const [query, setQuery] = useState("");
   const [pendingLanguage, setPendingLanguage] = useState<Language | null>(null);
 
@@ -136,11 +138,17 @@ const LanguageScreen = () => {
             >
               <View className="flex flex-row items-center gap-3">
                 <Text className="text-2xl">{item.flag}</Text>
-                <View>
-                  <Text className="text-sm font-rubik-semibold text-black-300">
+                <View className="flex-1 min-w-0 mr-3">
+                  <Text
+                    className="text-sm font-rubik-semibold text-black-300"
+                    numberOfLines={1}
+                  >
                     {item.name}
                   </Text>
-                  <Text className="text-xs font-rubik text-black-100">
+                  <Text
+                    className="text-xs font-rubik text-black-100"
+                    numberOfLines={1}
+                  >
                     {item.nativeName} · {item.region}
                   </Text>
                 </View>
@@ -167,7 +175,9 @@ const LanguageScreen = () => {
         onRequestClose={() => setPendingLanguage(null)}
       >
         <View className="flex-1 justify-center items-center bg-black/50 px-6">
-          <View className="w-full bg-white rounded-3xl p-6">
+          <View
+            className={`w-full bg-white rounded-3xl ${isCompact ? "p-4" : "p-6"}`}
+          >
             <View className="size-14 bg-primary-100 rounded-full items-center justify-center self-center">
               <Feather name="globe" size={26} color="#0061FF" />
             </View>

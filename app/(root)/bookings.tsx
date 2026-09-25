@@ -18,6 +18,7 @@ import ScreenHeader from "@/components/ScreenHeader";
 import images from "@/constants/images";
 import { useGlobalContext } from "@/lib/global-provider";
 import { useI18n } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 const REMOVED_BOOKINGS_KEY = "restate.removedBookings";
 
@@ -116,6 +117,7 @@ const BookingCard = ({
   onCancel: (booking: Booking) => void;
 }) => {
   const { t } = useI18n();
+  const { isNarrow } = useResponsiveLayout();
   const badge = statusStyle[booking.status];
   const statusLabel =
     booking.status === "upcoming"
@@ -131,13 +133,16 @@ const BookingCard = ({
 
   return (
     <View className="bg-white rounded-2xl shadow-lg shadow-black-100/70 border border-primary-100 overflow-hidden mt-4">
-      <View className="flex flex-row">
-        <Image source={booking.image} className="w-24 h-full" />
-        <View className="flex flex-1 flex-col p-3">
+      <View className={isNarrow ? "" : "flex flex-row"}>
+        <Image
+          source={booking.image}
+          className={isNarrow ? "w-full h-36" : "w-20 h-full"}
+        />
+        <View className="flex flex-1 flex-col p-3 min-w-0">
           <View className="flex flex-row items-start justify-between">
             <Text
-              className="text-base font-rubik-bold text-black-300 flex-1"
-              numberOfLines={1}
+              className="text-sm font-rubik-bold text-black-300 flex-1"
+              numberOfLines={2}
             >
               {booking.property}
             </Text>
@@ -160,7 +165,10 @@ const BookingCard = ({
 
           <View className="flex flex-row items-center mt-1">
             <Feather name="calendar" size={12} color="#666876" />
-            <Text className="text-xs font-rubik text-black-100 ml-1">
+            <Text
+              className="text-xs font-rubik text-black-100 ml-1 flex-1"
+              numberOfLines={1}
+            >
               {booking.date} · {booking.time}
             </Text>
           </View>

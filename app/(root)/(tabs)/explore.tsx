@@ -19,9 +19,11 @@ import NoResults from "@/components/NoResults";
 import { getProperties } from "@/lib/appwrite";
 import { useAppwrite } from "@/lib/useAppwrite";
 import { useI18n } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 const Explore = () => {
   const { t } = useI18n();
+  const { isNarrow, isCompact } = useResponsiveLayout();
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
   const {
@@ -42,21 +44,22 @@ const Explore = () => {
       filter: params.filter!,
       query: params.query!,
     });
-  }, [params.filter, params.query]);
+  }, [params.filter, params.query, refetch]);
 
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
 
   return (
     <SafeAreaView className="h-full bg-white">
       <FlatList
+        key={isNarrow ? "one-column" : "two-columns"}
         data={properties}
-        numColumns={2}
+        numColumns={isNarrow ? 1 : 2}
         renderItem={({ item }) => (
           <Card item={item} onPress={() => handleCardPress(item.$id)} />
         )}
         keyExtractor={(item) => item.$id}
         contentContainerClassName="pb-32"
-        columnWrapperClassName="flex gap-5 px-5"
+        columnWrapperClassName={isNarrow ? "" : "flex gap-3 px-3"}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           loading ? (
@@ -66,10 +69,10 @@ const Explore = () => {
           )
         }
         ListHeaderComponent={() => (
-          <View className="px-5">
+          <View className={isCompact ? "px-4" : "px-5"}>
             <View className="flex flex-row items-center justify-between mt-5">
               <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => router.replace("/")}
                 className="flex flex-row bg-primary-200 rounded-full size-11 items-center justify-center"
               >
                 <Image source={icons.backArrow} className="size-5" />

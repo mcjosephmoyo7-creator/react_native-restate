@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 interface UseAppwriteOptions<T, P extends Record<string, string | number>> {
   fn: (params: P) => Promise<T>;
@@ -22,6 +22,8 @@ export const useAppwrite = <T, P extends Record<string, string | number>>({
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(!skip);
   const [error, setError] = useState<string | null>(null);
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
 
   const fetchData = useCallback(
     async (fetchParams: P) => {
@@ -45,11 +47,16 @@ export const useAppwrite = <T, P extends Record<string, string | number>>({
 
   useEffect(() => {
     if (!skip) {
-      fetchData(params);
+      void fetchData(paramsRef.current);
     }
-  }, []);
+  }, [fetchData, skip]);
 
-  const refetch = async (newParams?: P) => await fetchData(newParams ?? params);
+  const refetch = useCallback(
+    async (newParams?: P) => {
+      await fetchData(newParams ?? paramsRef.current);
+    },
+    [fetchData]
+  );
 
   return { data, loading, error, refetch };
 };

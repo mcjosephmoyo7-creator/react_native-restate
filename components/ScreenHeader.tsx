@@ -19,12 +19,20 @@ const ScreenHeader = ({ title, subtitle, rightIcon }: ScreenHeaderProps) => {
         <Image source={icons.backArrow} className="size-5" />
       </TouchableOpacity>
 
-      <View className="flex flex-1 items-center">
-        <Text className="text-base text-center font-rubik-medium text-black-300">
+      <View className="flex flex-1 items-center px-2">
+        <Text
+          className="text-base text-center font-rubik-medium text-black-300"
+          numberOfLines={1}
+        >
           {title}
         </Text>
         {subtitle ? (
-          <Text className="text-xs font-rubik text-black-100">{subtitle}</Text>
+          <Text
+            className="text-xs font-rubik text-black-100 text-center"
+            numberOfLines={1}
+          >
+            {subtitle}
+          </Text>
         ) : null}
       </View>
 

@@ -21,10 +21,12 @@ import { useAppwrite } from "@/lib/useAppwrite";
 import { useGlobalContext } from "@/lib/global-provider";
 import { useI18n } from "@/lib/i18n";
 import { getLatestProperties, getProperties } from "@/lib/appwrite";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 const Home = () => {
   const { user } = useGlobalContext();
   const { t } = useI18n();
+  const { isNarrow, isCompact } = useResponsiveLayout();
 
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
@@ -53,21 +55,22 @@ const Home = () => {
       query: params.query!,
       limit: 6,
     });
-  }, [params.filter, params.query]);
+  }, [params.filter, params.query, refetch]);
 
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
 
   return (
     <SafeAreaView className="h-full bg-white">
       <FlatList
+        key={isNarrow ? "one-column" : "two-columns"}
         data={properties}
-        numColumns={2}
+        numColumns={isNarrow ? 1 : 2}
         renderItem={({ item }) => (
           <Card item={item} onPress={() => handleCardPress(item.$id)} />
         )}
         keyExtractor={(item) => item.$id}
         contentContainerClassName="pb-32"
-        columnWrapperClassName="flex gap-5 px-5"
+        columnWrapperClassName={isNarrow ? "" : "flex gap-3 px-3"}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           loading ? (
@@ -82,18 +85,21 @@ const Home = () => {
               <TouchableOpacity
                 onPress={() => router.push("/profile")}
                 activeOpacity={0.8}
-                className="flex flex-row"
+                className="flex flex-row flex-1 mr-3 min-w-0"
               >
                 <Image
                   source={{ uri: user?.avatar }}
-                  className="size-12 rounded-full"
+                  className={`rounded-full ${isCompact ? "size-10" : "size-12"}`}
                 />
 
-                <View className="flex flex-col items-start ml-2 justify-center">
+                <View className="flex flex-col items-start ml-2 justify-center flex-1 min-w-0">
                   <Text className="text-xs font-rubik text-black-100">
                     {t("home_greeting")}
                   </Text>
-                  <Text className="text-base font-rubik-medium text-black-300">
+                  <Text
+                    className="text-base font-rubik-medium text-black-300"
+                    numberOfLines={1}
+                  >
                     {user?.name}
                   </Text>
                 </View>
@@ -113,7 +119,10 @@ const Home = () => {
                 <Text className="text-xl font-rubik-bold text-black-300">
                   {t("home_featured")}
                 </Text>
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/explore")}
+                  accessibilityRole="button"
+                >
                   <Text className="text-base font-rubik-bold text-primary-300">
                     {t("home_seeAll")}
                   </Text>
@@ -148,7 +157,10 @@ const Home = () => {
                 <Text className="text-xl font-rubik-bold text-black-300">
                   {t("home_recommendation")}
                 </Text>
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/explore")}
+                  accessibilityRole="button"
+                >
                   <Text className="text-base font-rubik-bold text-primary-300">
                     {t("home_seeAll")}
                   </Text>

@@ -4,9 +4,9 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
 import "./global.css";
-import GlobalProvider from "@/lib/global-provider";
-import FavoritesProvider from "@/lib/favorites-provider";
-import LanguageProvider from "@/lib/i18n";
+import { GlobalProvider } from "@/lib/global-provider";
+import { FavoritesProvider } from "@/lib/favorites-provider";
+import { LanguageProvider } from "@/lib/i18n";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({

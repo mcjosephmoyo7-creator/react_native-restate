@@ -64,6 +64,15 @@ interface CurrentUser {
   avatar: string;
 }
 
+export async function completeOAuthSession(userId: string, secret: string) {
+  if (!isAppwriteConfigured) {
+    throw new Error("Appwrite is not configured.");
+  }
+
+  await account.createSession(userId, secret);
+  await syncProfile();
+}
+
 export async function login() {
   if (!isAppwriteConfigured) {
     console.error(
@@ -96,8 +105,7 @@ export async function login() {
 
     if (!userId || !secret) return false;
 
-    await account.createSession(userId, secret);
-    await syncProfile();
+    await completeOAuthSession(userId, secret);
 
     return true;
   } catch (error) {

@@ -15,6 +15,7 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import ScreenHeader from "@/components/ScreenHeader";
 import images from "@/constants/images";
 import { useI18n, TranslationKey } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 type Currency = "USD" | "ZiG";
 
@@ -177,6 +178,7 @@ const currencySymbol = (code: string) => (code === "USD" ? "$" : "ZiG");
 
 const Payments = () => {
   const { t } = useI18n();
+  const { isCompact } = useResponsiveLayout();
   const [currency, setCurrency] = useState<Currency>("USD");
   const [selectedMethod, setSelectedMethod] = useState("ecocash");
   const [phone, setPhone] = useState("+263 77 000 0000");
@@ -229,7 +231,12 @@ const Payments = () => {
                 <MaterialCommunityIcons name="wallet" size={22} color="#FFF" />
               </View>
               <View>
-                <Text className="text-3xl font-rubik-extrabold text-white">
+                <Text
+                  className={`font-rubik-extrabold text-white ${
+                    isCompact ? "text-2xl" : "text-3xl"
+                  }`}
+                  numberOfLines={1}
+                >
                   {currency === "USD" ? "$ 245.00" : "ZiG 6,430.00"}
                 </Text>
                 <Text className="text-xs font-rubik text-white/80 mt-1">
@@ -274,11 +281,17 @@ const Payments = () => {
                         color={method.iconColor}
                       />
                     </View>
-                    <View>
-                      <Text className="text-sm font-rubik-semibold text-black-300">
+                    <View className="flex-1 min-w-0 mr-3">
+                      <Text
+                        className="text-sm font-rubik-semibold text-black-300"
+                        numberOfLines={1}
+                      >
                         {method.name}
                       </Text>
-                      <Text className="text-xs font-rubik text-black-100">
+                      <Text
+                        className="text-xs font-rubik text-black-100"
+                        numberOfLines={1}
+                      >
                         {t(method.descKey)}
                       </Text>
                     </View>
@@ -365,8 +378,11 @@ const Payments = () => {
                           : tx.purpose}
                       </Text>
                     </View>
-                    <View className="flex flex-col items-end">
-                      <Text className="text-sm font-rubik-bold text-black-300">
+                    <View className="flex flex-col items-end ml-2 shrink">
+                      <Text
+                        className="text-sm font-rubik-bold text-black-300"
+                        numberOfLines={1}
+                      >
                         {currencySymbol(tx.currency)} {tx.amount.toLocaleString()}
                       </Text>
                       <View className="flex flex-row items-center mt-1 px-2 py-0.5 rounded-full">

@@ -13,6 +13,7 @@ import { router, Href } from "expo-router";
 import { logout } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
 import { useI18n, TranslationKey } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 import icons from "@/constants/icons";
 import { settings } from "@/constants/data";
@@ -60,7 +61,10 @@ const SettingsItem = ({
   >
     <View className="flex flex-row items-center gap-3">
       <Image source={icon} className="size-6" />
-      <Text className={`text-lg font-rubik-medium text-black-300 ${textStyle}`}>
+      <Text
+        className={`text-base font-rubik-medium text-black-300 flex-1 ${textStyle}`}
+        numberOfLines={1}
+      >
         {title}
       </Text>
     </View>
@@ -72,12 +76,14 @@ const SettingsItem = ({
 const Profile = () => {
   const { user, refetch } = useGlobalContext();
   const { t } = useI18n();
+  const { isCompact } = useResponsiveLayout();
 
   const handleLogout = async () => {
     const result = await logout();
     if (result) {
+      await refetch();
+      router.replace("/sign-in");
       Alert.alert(t("common_success"), t("logout_success"));
-      refetch();
     } else {
       Alert.alert(t("common_error"), t("logout_error"));
     }
@@ -94,7 +100,7 @@ const Profile = () => {
     <SafeAreaView className="h-full bg-white">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-32 px-7"
+        contentContainerClassName={`pb-32 ${isCompact ? "px-5" : "px-7"}`}
       >
         <View className="flex flex-row items-center justify-between mt-5">
           <Text className="text-xl font-rubik-bold">{t("profile_title")}</Text>
@@ -110,7 +116,7 @@ const Profile = () => {
           <View className="flex flex-col items-center relative mt-5">
             <Image
               source={{ uri: user?.avatar }}
-              className="size-44 relative rounded-full"
+              className={`relative rounded-full ${isCompact ? "size-36" : "size-44"}`}
             />
             <TouchableOpacity
               onPress={() => router.push("/edit-profile")}
@@ -120,7 +126,12 @@ const Profile = () => {
               <Image source={icons.edit} className="size-9" />
             </TouchableOpacity>
 
-            <Text className="text-2xl font-rubik-bold mt-2">{user?.name}</Text>
+            <Text
+              className="text-2xl font-rubik-bold mt-2 text-center"
+              numberOfLines={1}
+            >
+              {user?.name}
+            </Text>
           </View>
         </View>
 

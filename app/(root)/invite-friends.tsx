@@ -14,7 +14,7 @@ import * as Clipboard from "expo-clipboard";
 
 import ScreenHeader from "@/components/ScreenHeader";
 import images from "@/constants/images";
-import { useI18n } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 const referralCode = "RESTATE-ZW";
 
@@ -77,6 +77,7 @@ const shareMessage =
 
 const InviteFriends = () => {
   const [copied, setCopied] = useState(false);
+  const { isCompact } = useResponsiveLayout();
 
   const handleCopy = async () => {
     await Clipboard.setStringAsync(referralCode);
@@ -113,13 +114,20 @@ const InviteFriends = () => {
         <ScreenHeader title="Invite Friends" />
 
         <View className="mt-5 rounded-3xl overflow-hidden">
-          <Image source={images.cardGradient} className="w-full h-44" />
+          <Image
+            source={images.cardGradient}
+            className={`w-full ${isCompact ? "h-40" : "h-44"}`}
+          />
           <View className="absolute inset-0 p-5 justify-between">
             <View className="size-11 bg-white/20 rounded-2xl items-center justify-center">
               <Feather name="gift" size={22} color="#FFFFFF" />
             </View>
             <View>
-              <Text className="text-2xl font-rubik-extrabold text-white">
+              <Text
+                className={`font-rubik-extrabold text-white ${
+                  isCompact ? "text-xl" : "text-2xl"
+                }`}
+              >
                 Invite Friends & Earn Rewards
               </Text>
               <Text className="text-sm font-rubik text-white/90 mt-1">
@@ -142,15 +150,18 @@ const InviteFriends = () => {
         </Text>
 
         <View className="mt-3 flex flex-row items-center justify-between rounded-2xl border border-primary-200 bg-primary-100 px-4 py-4">
-          <View className="flex flex-row items-center gap-2">
+          <View className="flex flex-row items-center gap-2 flex-1 min-w-0 mr-3">
             <Feather name="copy" size={16} color="#0061FF" />
-            <Text className="text-lg font-rubik-extrabold text-primary-300 tracking-wider">
+            <Text
+              className="text-base font-rubik-extrabold text-primary-300 tracking-wider flex-1"
+              numberOfLines={1}
+            >
               {referralCode}
             </Text>
           </View>
           <TouchableOpacity
             onPress={handleCopy}
-            className="bg-primary-300 rounded-xl px-4 py-2.5"
+            className="bg-primary-300 rounded-xl px-4 py-2.5 shrink-0"
           >
             <Text className="text-xs font-rubik-bold text-white">
               {copied ? "Copied!" : "Copy Code"}
@@ -193,17 +204,23 @@ const InviteFriends = () => {
                 </Text>
               </View>
 
-              <View className="flex flex-1 ml-3">
-                <Text className="text-sm font-rubik-semibold text-black-300">
+              <View className="flex flex-1 ml-3 mr-2 min-w-0">
+                <Text
+                  className="text-sm font-rubik-semibold text-black-300"
+                  numberOfLines={1}
+                >
                   {invitee.name}
                 </Text>
-                <Text className="text-xs font-rubik text-black-100 mt-0.5">
+                <Text
+                  className="text-xs font-rubik text-black-100 mt-0.5"
+                  numberOfLines={1}
+                >
                   {invitee.phone} · {invitee.date}
                 </Text>
               </View>
 
               <View
-                className={`flex flex-row items-center px-2.5 py-1 rounded-full ${
+                className={`flex flex-row items-center px-2.5 py-1 rounded-full shrink-0 ${
                   invitee.status === "Rewarded"
                     ? "bg-emerald-100"
                     : "bg-amber-100"

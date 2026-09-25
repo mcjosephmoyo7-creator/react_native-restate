@@ -3,6 +3,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   Text,
@@ -19,10 +21,12 @@ import images from "@/constants/images";
 import { updateUserProfile } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
 import { useI18n } from "@/lib/i18n";
+import { useResponsiveLayout } from "@/lib/use-responsive";
 
 const EditProfile = () => {
   const { user, refetch } = useGlobalContext();
   const { t } = useI18n();
+  const { isCompact } = useResponsiveLayout();
   const [name, setName] = useState(user?.name ?? "");
   const [selectedImage, setSelectedImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
@@ -105,7 +109,11 @@ const EditProfile = () => {
 
   return (
     <SafeAreaView className="h-full bg-white">
-      <ScrollView
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        className="flex-1"
+      >
+        <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerClassName="pb-16 px-5"
@@ -126,7 +134,7 @@ const EditProfile = () => {
           >
             <Image
               source={imageUri ? { uri: imageUri } : images.avatar}
-              className="size-36 rounded-full"
+              className={`rounded-full ${isCompact ? "size-32" : "size-36"}`}
             />
             <View className="absolute bottom-1 right-1 size-10 rounded-full bg-primary-300 border-4 border-white items-center justify-center">
               <Feather name="camera" size={18} color="#FFFFFF" />
@@ -181,7 +189,8 @@ const EditProfile = () => {
             </Text>
           )}
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
