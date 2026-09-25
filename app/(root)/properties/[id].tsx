@@ -309,7 +309,12 @@ const Property = () => {
             </Text>
           </View>
 
-          <TouchableOpacity className="flex-1 flex flex-row items-center justify-center bg-primary-300 py-3 rounded-full shadow-md shadow-zinc-400">
+          <TouchableOpacity
+            onPress={() => router.push("/payments")}
+            accessibilityRole="button"
+            accessibilityLabel="Book now and continue to payment"
+            className="flex-1 flex flex-row items-center justify-center bg-primary-300 py-3 rounded-full shadow-md shadow-zinc-400"
+          >
             <Text
               className={`text-white text-center font-rubik-bold ${
                 isCompact ? "text-base" : "text-lg"
