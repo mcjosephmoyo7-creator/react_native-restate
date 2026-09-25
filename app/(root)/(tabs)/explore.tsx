@@ -84,6 +84,9 @@ const Explore = () => {
               <TouchableOpacity
                 onPress={() => router.push("/notifications")}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="Open notifications"
+                className="-m-2 p-2"
               >
                 <Image source={icons.bell} className="w-6 h-6" />
               </TouchableOpacity>

@@ -1,5 +1,6 @@
-import { TouchableOpacity } from "react-native";
+import { GestureResponderEvent, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 import { useFavorites } from "@/lib/favorites-provider";
 
@@ -21,9 +22,19 @@ const FavoriteButton = ({
   const { isFavorite, toggleFavorite } = useFavorites();
   const active = isFavorite(id);
 
+  const handlePress = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    toggleFavorite(id);
+    router.push({ pathname: "/bookings", params: { tab: "upcoming" } });
+  };
+
   return (
     <TouchableOpacity
-      onPress={() => toggleFavorite(id)}
+      onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityLabel={
+        active ? "Remove property from favorites" : "Like property"
+      }
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       className={className}
     >

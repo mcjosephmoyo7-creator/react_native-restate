@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 
 import ScreenHeader from "@/components/ScreenHeader";
 import images from "@/constants/images";
@@ -212,7 +213,10 @@ const BookingCard = ({
 const Bookings = () => {
   const { user } = useGlobalContext();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState<BookingStatus>("upcoming");
+  const { tab } = useLocalSearchParams<{ tab?: BookingStatus }>();
+  const [activeTab, setActiveTab] = useState<BookingStatus>(
+    tab === "completed" ? "completed" : "upcoming"
+  );
   const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
   const [bookings, setBookings] = useState<Booking[]>(mockBookings);
   const removedBookingIdsRef = useRef<Set<string>>(new Set());
